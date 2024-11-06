@@ -109,8 +109,8 @@ begin
       Put_Line ("Back: " & Float'Image(Distance3));
       Put_Line ("Left: " & Float'Image(Distance4));
 
-      Vx := Distance3 - Distance1;
-      Vy := Distance4 - Distance2;
+      Vx := Distance4 - Distance2;
+      Vy := Distance3 - Distance1;
 
       if (Distance1 = 0.0 and Distance3 = 0.0) then
          Vx := 0.0;
@@ -143,10 +143,13 @@ begin
       Put_Line ("Direction_Vector (0): " & Float'Image(Direction_Vector (0)));
       Put_Line ("Direction_Vector (1): " & Float'Image(Direction_Vector (1)));
 
-      Speed_Vector (0) := 1.0/radius * (Movement_matrix (0, 0) * Direction_Vector (0) + Movement_matrix (0, 1) * Direction_Vector (1) + Movement_matrix (0, 2) * Direction_Vector (2));
-      Speed_Vector (1) := 1.0/radius * (Movement_matrix (1, 0) * Direction_Vector (0) + Movement_matrix (1, 1) * Direction_Vector (1) + Movement_matrix (1, 2) * Direction_Vector (2));
-      Speed_Vector (2) := 1.0/radius * (Movement_matrix (2, 0) * Direction_Vector (0) + Movement_matrix (2, 1) * Direction_Vector (1) + Movement_matrix (2, 2) * Direction_Vector (2));
-      Speed_Vector (3) := 1.0/radius * (Movement_matrix (3, 0) * Direction_Vector (0) + Movement_matrix (3, 1) * Direction_Vector (1) + Movement_matrix (3, 2) * Direction_Vector (2));
+      --  Direction_Vector (0) := 0.0; -- Ux / |V|; x component of unit vector * the length og unit vector
+      --  Direction_Vector (1) := 0.0; -- Uy / |V|; y component of unit vector * the length og unit vector
+
+      Speed_Vector (0) := 1.0/4.0 * (Movement_matrix (0, 0) * Direction_Vector (0) + Movement_matrix (0, 1) * Direction_Vector (1) + Movement_matrix (0, 2) * Direction_Vector (2));
+      Speed_Vector (1) := 1.0/4.0 * (Movement_matrix (1, 0) * Direction_Vector (0) + Movement_matrix (1, 1) * Direction_Vector (1) + Movement_matrix (1, 2) * Direction_Vector (2));
+      Speed_Vector (2) := 1.0/4.0 * (Movement_matrix (2, 0) * Direction_Vector (0) + Movement_matrix (2, 1) * Direction_Vector (1) + Movement_matrix (2, 2) * Direction_Vector (2));
+      Speed_Vector (3) := 1.0/4.0 * (Movement_matrix (3, 0) * Direction_Vector (0) + Movement_matrix (3, 1) * Direction_Vector (1) + Movement_matrix (3, 2) * Direction_Vector (2));
 
       Put_Line ("Speed_Vector (0): " & Float'Image(Speed_Vector (0)));
       Put_Line ("Speed_Vector (1): " & Float'Image(Speed_Vector (1)));
