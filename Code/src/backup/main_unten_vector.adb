@@ -1,11 +1,11 @@
 -- Dette er med orginal lib.
 
 with MicroBit.Ultrasonic;
-with MicroBit.Console; use MicroBit.Console;
+with MicroBit.Console;
 with MicroBit.Types;
 with MicroBit.MotorDriver;
 --  with MicroBit.Eriklib; use MicroBit.Eriklib;
-with HAL;
+with HAL; use HAL;
 
 -- Needed for the sqrt() function
 with Ada.Numerics.Elementary_Functions;
@@ -31,9 +31,9 @@ procedure Main is
 
    -- This is for the sensor and all its definitions
    package sensor1 is new MicroBit.Ultrasonic(MicroBit.MB_P16, MicroBit.MB_P0); -- Trigger, Echo
-   package sensor2 is new MicroBit.Ultrasonic(MicroBit.MB_P15, MicroBit.MB_P1); -- Trigger, Echo
-   package sensor3 is new MicroBit.Ultrasonic(MicroBit.MB_P14, MicroBit.MB_P2); -- Trigger, Echo
-   package sensor4 is new MicroBit.Ultrasonic(MicroBit.MB_P13, MicroBit.MB_P12); -- Trigger, Echo
+   package sensor2 is new MicroBit.Ultrasonic(MicroBit.MB_P15, MicroBit.MB_P0); -- Trigger, Echo
+   package sensor3 is new MicroBit.Ultrasonic(MicroBit.MB_P14, MicroBit.MB_P0); -- Trigger, Echo
+   package sensor4 is new MicroBit.Ultrasonic(MicroBit.MB_P13, MicroBit.MB_P0); -- Trigger, Echo
 
    -- NOTE: The Sensor_Range was for the other vector formula [1/s1 - 1/s3, 1/s4 - 1/s2]
    -- New formula is [s3 - s1, s4 - s2] NOTE: This is not the final formula
@@ -67,7 +67,7 @@ procedure Main is
    -- These Variables are needed for the Movement_matrix
    length    : Float := 12.0;
    width     : Float := 7.7;
-   max_Speed : Float := 4000.0;
+   max_Speed : Float := 4095.0;
    radius    : Float := 3.2;
 
    Movement_matrix : Matrix4x3 :=
@@ -83,79 +83,37 @@ procedure Main is
    Speed_Vector : MicroBit.MotorDriver.Vector4d := (0.0, 0.0, 0.0, 0.0); -- [V1, V2, V3, V4]
 
    -------------------- Init of Variables----------------------
-   Vx         : Float;
-   Vy         : Float;
-   Theta      : Float;
-
+   Ux         : Float;
+   Uy         : Float;
    Dir_length : Float;
 
-   Distance1 : Float;
-   Distance2 : Float;
-   Distance3 : Float;
-   Distance4 : Float;
 begin
-   Put_Line ("Hello, world!");
    loop
-      -- Calculate Vx and Vy based on the input from the sensors
+      -- Calculate Ux and Uy (unit components based on the input from the sensors
       -- Needs to be converted into Float because sensorX.Read gives Distance_cm
-
-      Distance1 := Float(sensor1.Read); -- Sensor1
-      Distance2 := Float(sensor2.Read); -- Sensor2
-      Distance3 := Float(sensor3.Read); -- Sensor3
-      Distance4 := Float(sensor4.Read); -- Sensor4
-
-      Put_Line ("Front: " & Float'Image(Distance1));
-      Put_Line ("Right: " & Float'Image(Distance2));
-      Put_Line ("Back: " & Float'Image(Distance3));
-      Put_Line ("Left: " & Float'Image(Distance4));
-
-      Vx := Distance3 - Distance1;
-      Vy := Distance4 - Distance2;
-
-      if (Distance1 = 0.0 and Distance3 = 0.0) then
-         Vx := 0.0;
-      end if;
-
-      if (Distance2 = 0.0 and Distance4 = 0.0) then
-         Vy := 0.0;
-      end if;
-
-      Theta := Ada.Numerics.Elementary_Functions.ArcTan(Vy/Vx);
-
-      Put_Line ("Vx: " & Float'Image(Vx));
-      Put_Line ("Vy: " & Float'Image(Vy));
+      Ux := Float (sensor3.Read) - Float (sensor1.Read);
+      Uy := Float (sensor4.Read) - Float (sensor2.Read);
 
       -- Calculation to acheive the unit vector which is U = V / |V|
-      Dir_length := Ada.Numerics.Elementary_Functions.Sqrt(Vx**2 + Vy**2); -- |V|
+      Dir_length := Ada.Numerics.Elementary_Functions.Sqrt(Ux**2 + Uy**2); -- |V|
 
-      Put_Line ("Dir_length: " & Float'Image(Dir_length));
+      Direction_Vector (0) := Ux / Dir_length; -- Ux / |V|; x component of unit vector * the length og unit vector
+      Direction_Vector (1) := Uy / Dir_length; -- Uy / |V|; y component of unit vector * the length og unit vector
 
-      if Dir_length = 0.0 then
-         Direction_Vector (0) := 0.0; -- Ux / |V|; x component of unit vector * the length og unit vector
-         Direction_Vector (1) := 0.0; -- Uy / |V|; y component of unit vector * the length og unit vector
-         Direction_Vector (2) := 0.0; -- Uy / |V|; z component of unit vector * the length og unit vector
-      else
-         Direction_Vector (0) := Vx / Dir_length; -- Ux / |V|; x component of unit vector * the length og unit vector
-         Direction_Vector (1) := Vy / Dir_length; -- Uy / |V|; y component of unit vector * the length og unit vector
-         Direction_Vector (2) := Theta; -- Uy / |V|; z component of unit vector * the length og unit vector
-      end if;
+      -- This double for loop is for matrix dot product. See doc (TODO: Add document)
+      --  for I in MicroBit.MotorDriver.Speed_Index loop -- Integer
+      --     for J in Direction_Index loop -- Integer
+      --        Speed_Vector (I) := Movement_matrix (Rows(I), Cols(J)) * Direction_Vector (J);
+      --     end loop;
+      --  end loop;
 
-      Put_Line ("Direction_Vector (0): " & Float'Image(Direction_Vector (0)));
-      Put_Line ("Direction_Vector (1): " & Float'Image(Direction_Vector (1)));
-
-      Speed_Vector (0) := 1.0/radius * (Movement_matrix (0, 0) * Direction_Vector (0) + Movement_matrix (0, 1) * Direction_Vector (1) + Movement_matrix (0, 2) * Direction_Vector (2));
-      Speed_Vector (1) := 1.0/radius * (Movement_matrix (1, 0) * Direction_Vector (0) + Movement_matrix (1, 1) * Direction_Vector (1) + Movement_matrix (1, 2) * Direction_Vector (2));
-      Speed_Vector (2) := 1.0/radius * (Movement_matrix (2, 0) * Direction_Vector (0) + Movement_matrix (2, 1) * Direction_Vector (1) + Movement_matrix (2, 2) * Direction_Vector (2));
-      Speed_Vector (3) := 1.0/radius * (Movement_matrix (3, 0) * Direction_Vector (0) + Movement_matrix (3, 1) * Direction_Vector (1) + Movement_matrix (3, 2) * Direction_Vector (2));
-
-      Put_Line ("Speed_Vector (0): " & Float'Image(Speed_Vector (0)));
-      Put_Line ("Speed_Vector (1): " & Float'Image(Speed_Vector (1)));
-      Put_Line ("Speed_Vector (2): " & Float'Image(Speed_Vector (2)));
-      Put_Line ("Speed_Vector (3): " & Float'Image(Speed_Vector (3)));
-
-      -- Burde vrike. Idk, den compiler i det minste. Viktigste nå er å sette opp ultrasonic sensors sånn at det henger på bilen ordentlig.
-      MicroBit.MotorDriver.WromWrom_Vector(Speed_Vector);
-      -- Stop and full flank if statements.
+      -- Burde vrike. Idk, den runner i det minste. Viktigste nå er å sette opp ultrasonic sensors sånn at det henger på bilen ordentlig.
+      MicroBit.MotorDriver.WromWrom((
+         UInt12((max_Speed - max_Speed - (length + width)) * Dir_length),  --
+         UInt12((max_Speed + max_Speed + (length + width)) * Dir_length),    --
+         UInt12((max_Speed + max_Speed - (length + width)) * Dir_length),   --
+         UInt12((max_Speed - max_Speed + (length + width)) * Dir_length))    --
+      );
 
       delay 0.05; --50ms
    end loop;

@@ -67,7 +67,7 @@ procedure Main is
    -- These Variables are needed for the Movement_matrix
    length    : Float := 12.0;
    width     : Float := 7.7;
-   max_Speed : Float := 4000.0;
+   max_Speed : Float := 800.0;
    radius    : Float := 3.2;
 
    Movement_matrix : Matrix4x3 :=
@@ -85,8 +85,6 @@ procedure Main is
    -------------------- Init of Variables----------------------
    Vx         : Float;
    Vy         : Float;
-   Theta      : Float;
-
    Dir_length : Float;
 
    Distance1 : Float;
@@ -120,8 +118,6 @@ begin
          Vy := 0.0;
       end if;
 
-      Theta := Ada.Numerics.Elementary_Functions.ArcTan(Vy/Vx);
-
       Put_Line ("Vx: " & Float'Image(Vx));
       Put_Line ("Vy: " & Float'Image(Vy));
 
@@ -131,29 +127,31 @@ begin
       Put_Line ("Dir_length: " & Float'Image(Dir_length));
 
       if Dir_length = 0.0 then
-         Direction_Vector (0) := 0.0; -- Ux / |V|; x component of unit vector * the length og unit vector
+         Direction_Vector (0) := 1.0; -- Ux / |V|; x component of unit vector * the length og unit vector
          Direction_Vector (1) := 0.0; -- Uy / |V|; y component of unit vector * the length og unit vector
-         Direction_Vector (2) := 0.0; -- Uy / |V|; z component of unit vector * the length og unit vector
       else
          Direction_Vector (0) := Vx / Dir_length; -- Ux / |V|; x component of unit vector * the length og unit vector
          Direction_Vector (1) := Vy / Dir_length; -- Uy / |V|; y component of unit vector * the length og unit vector
-         Direction_Vector (2) := Theta; -- Uy / |V|; z component of unit vector * the length og unit vector
       end if;
+
+      --  Direction_Vector(2) := Ada.Numerics.Elementary_Functions.ArcTan(Vy/Vx);
 
       Put_Line ("Direction_Vector (0): " & Float'Image(Direction_Vector (0)));
       Put_Line ("Direction_Vector (1): " & Float'Image(Direction_Vector (1)));
 
-      Speed_Vector (0) := 1.0/radius * (Movement_matrix (0, 0) * Direction_Vector (0) + Movement_matrix (0, 1) * Direction_Vector (1) + Movement_matrix (0, 2) * Direction_Vector (2));
-      Speed_Vector (1) := 1.0/radius * (Movement_matrix (1, 0) * Direction_Vector (0) + Movement_matrix (1, 1) * Direction_Vector (1) + Movement_matrix (1, 2) * Direction_Vector (2));
-      Speed_Vector (2) := 1.0/radius * (Movement_matrix (2, 0) * Direction_Vector (0) + Movement_matrix (2, 1) * Direction_Vector (1) + Movement_matrix (2, 2) * Direction_Vector (2));
-      Speed_Vector (3) := 1.0/radius * (Movement_matrix (3, 0) * Direction_Vector (0) + Movement_matrix (3, 1) * Direction_Vector (1) + Movement_matrix (3, 2) * Direction_Vector (2));
+      -- This double for loop is for matrix dot product. See doc (TODO: Add document)
+      for I in MicroBit.MotorDriver.Speed_Index loop -- Integer
+         for J in Direction_Index loop -- Integer
+            Speed_Vector (I) := Speed_Vector(I) + Movement_matrix (Rows(I), Cols(J)) * Direction_Vector (J);
+         end loop;
+      end loop;
 
       Put_Line ("Speed_Vector (0): " & Float'Image(Speed_Vector (0)));
       Put_Line ("Speed_Vector (1): " & Float'Image(Speed_Vector (1)));
       Put_Line ("Speed_Vector (2): " & Float'Image(Speed_Vector (2)));
       Put_Line ("Speed_Vector (3): " & Float'Image(Speed_Vector (3)));
 
-      -- Burde vrike. Idk, den compiler i det minste. Viktigste nå er å sette opp ultrasonic sensors sånn at det henger på bilen ordentlig.
+      -- Burde vrike. Idk, den runner i det minste. Viktigste nå er å sette opp ultrasonic sensors sånn at det henger på bilen ordentlig.
       MicroBit.MotorDriver.WromWrom_Vector(Speed_Vector);
       -- Stop and full flank if statements.
 
