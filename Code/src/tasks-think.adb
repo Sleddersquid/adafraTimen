@@ -18,9 +18,9 @@ package body Tasks.Think is
 
          --  Beregn Theta og Dir_length
          if Vx = 0.0 and Vy = 0.0 then
-            Dir_length := 0.0;
+            Magnitude := 0.0;
          else
-            Dir_length := Ada.Numerics.Elementary_Functions.Sqrt((abs (Vx)) ** 2.0 + (abs (Vy)) ** 2.0);
+            Magnitude := Ada.Numerics.Elementary_Functions.Sqrt((abs (Vx)) ** 2.0 + (abs (Vy)) ** 2.0);
          end if;
 
          --  Put_Line("Vx: " & Float'Image(Vx) & " Vy: " & Float'Image(Vy));
@@ -46,26 +46,23 @@ package body Tasks.Think is
 
          Put_Line(" Theta: " & Float'Image(Theta));
 
-         if Dir_length = 0.0 then
+         if Magnitude = 0.0 then
             Direction_Vector := (1.0, 0.0, 0.0);
          else
-            Direction_Vector(0) := Vx / Dir_length;
-            Direction_Vector(1) := Vy / Dir_length;
+            Direction_Vector(0) := Vx / Magnitude;
+            Direction_Vector(1) := Vy / Magnitude;
             Direction_Vector(2) := Theta;
          end if;
 
          --  Put_Line("Direction_Vector: " & Float'Image(Direction_Vector(0)) & " " & Float'Image(Direction_Vector(1)) & " " & Float'Image(Direction_Vector(2)));
 
          -- Oppdater Shared_Speed_Vector basert på Movement_matrix
-         for i in Rows'Range loop
-            Shared_Speed_Vector(Speed_Index(i)) :=
-               Movement_matrix(i, 0) * Direction_Vector(0) +
-               Movement_matrix(i, 1) * Direction_Vector(1) +
-               Movement_matrix(i, 2) * Direction_Vector(2);
+         for j in Rows'Range loop
+            Shared_Speed_Vector(Speed_Index(j)) :=
+               Movement_matrix(j, 0) * Direction_Vector(0) +
+               Movement_matrix(j, 1) * Direction_Vector(1) +
+               Movement_matrix(j, 2) * Direction_Vector(2);
          end loop;
-
-         --  Put_Line("Shared_Speed_Vector: " & Float'Image(Shared_Speed_Vector(0)) & " " & Float'Image(Shared_Speed_Vector(1)) & " " & Float'Image(Shared_Speed_Vector(2)) & " " & Float'Image(Shared_Speed_Vector(3)));
-
       end Set_Velocity;
 
       -- Henter den beregnede hastighetsvektoren for å brukes i andre tasker
@@ -101,7 +98,7 @@ package body Tasks.Think is
             Stop_Time    := Clock;
             Elapsed_Time := Stop_Time - Start_Time;
          Put_Line("(Think) Time taken: " & Duration'Image(To_Duration(Elapsed_Time)));
-         delay 0.2; -- 200ms
+         delay until Start_Time + Milliseconds(10); -- 200ms
       end loop;
    end Think;
 

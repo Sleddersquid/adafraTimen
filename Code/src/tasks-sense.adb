@@ -65,7 +65,7 @@ end Update_Sensor_Data;
          Elapsed_Time := Stop_Time - Start_Time;
          Put_Line("(Sense) Time taken: " & Duration'Image(To_Duration(Elapsed_Time)));
 
-         delay 0.2; -- 200ms
+         delay until Start_Time + Milliseconds(50); -- 200ms
       end loop;
    end Sense;
 

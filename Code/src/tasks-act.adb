@@ -42,7 +42,7 @@ package body Tasks.Act is
             Stop_Time    := Clock;
             Elapsed_Time := Stop_Time - Start_Time;
          Put_Line("(Act) Time taken: " & Duration'Image(To_Duration(Elapsed_Time)));
-         delay 0.2; -- 200ms
+         delay until Start_Time + Milliseconds(10); -- 200ms
       end loop;
    end Act;
 

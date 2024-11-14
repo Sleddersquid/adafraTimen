@@ -40,7 +40,7 @@ package Tasks.Think is
       Vx         : Float := 0.0; -- Hastighet i x-retning
       Vy         : Float := 0.0; -- Hastighet i y-retning
       Theta      : Float := 0.0; -- Vinkel for retning
-      Dir_length : Float := 0.0; -- Lengden av retningsvektoren
+      Magnitude : Float := 0.0; -- Lengden av retningsvektoren
 
       Direction_Vector : Vector3d := (0.0, 0.0, 0.0); -- Retningsvektor
       Shared_Speed_Vector : Vector4d := (0.0, 0.0, 0.0, 0.0); -- Hastighetsvektor
