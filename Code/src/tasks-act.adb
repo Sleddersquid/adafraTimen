@@ -1,4 +1,4 @@
-with MicroBit.MotorDriver; -- For å kontrollere motorene basert på Speed_Vector
+with MicroBit.MotorDriver;
 with Tasks.Think;   use Tasks;
 with Ada.Real_Time; use Ada.Real_Time;
 with HAL;           use HAL;
