@@ -6,17 +6,17 @@ from pprint import pprint
 #  Everything is in milliseconds
 task_set_1 = {
     "Sense": { # Task A
-        "T": 150, # 50ms
+        "T": 140, # 50ms
         "C": 100, # xms
         "P": 3
     },
     "Think": { # Task B
-        "T": 150, # xms
+        "T": 140, # xms
         "C": 6, # .060ms or 60us
         "P": 2
     },
     "Act": { # Task C
-        "T": 150, # xms
+        "T": 140, # xms
         "C": 2, # xms
         "P": 1
     }
