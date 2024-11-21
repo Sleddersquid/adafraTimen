@@ -5,6 +5,7 @@ package body Tasks.Sense is
 protected body Update_Sensor_Data is
    function Get_Distance1 return Float is
    begin
+      -- Acordingly to Equation 2. Limits the distance of the sensor to 0 and 40 cm.
       if Distance1 < 0.0 or Distance1 > Max_Distance then
          return 0.0;
       end if;
@@ -13,6 +14,7 @@ protected body Update_Sensor_Data is
 
    function Get_Distance2 return Float is
    begin
+      -- Acordingly to Equation 2. Limits the distance of the sensor to 0 and 40 cm.
       if Distance2 < 0.0 or Distance2 > Max_Distance then
          return 0.0;
       end if;
@@ -21,6 +23,7 @@ protected body Update_Sensor_Data is
 
    function Get_Distance3 return Float is
    begin
+      -- Acordingly to Equation 2. Limits the distance of the sensor to 0 and 40 cm.
       if Distance3 < 0.0 or Distance3 > Max_Distance then
          return 0.0;
       end if;
@@ -29,6 +32,7 @@ protected body Update_Sensor_Data is
 
    function Get_Distance4 return Float is
    begin
+      -- Acordingly to Equation 2. Limits the distance of the sensor to 0 and 40 cm.
       if Distance4 < 0.0 or Distance4 > Max_Distance then
          return 0.0;
       end if;
@@ -45,13 +49,16 @@ protected body Update_Sensor_Data is
 end Update_Sensor_Data;
 
    task body Sense is
+      -- Start_Time to store the current time
       Start_Time: Time;
    begin
       loop
+         -- Get the current time
          Start_Time := Clock;
-
+         -- Read the values from sensor data. .
          Shared_Sensor_Data.Update(Float(Sensor1.Read), Float(Sensor2.Read), Float(Sensor3.Read), Float(Sensor4.Read));
 
+         -- Taking use of the delay until, so that the computation time is taken into account.
          delay until Start_Time + Milliseconds(140);
       end loop;
    end Sense;
